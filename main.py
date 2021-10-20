@@ -23,7 +23,11 @@ class Game:
         self.create_rooms()
         self.connect_rooms()
 
+        self.init_player()
+
         self.print_map()
+
+        self.display_player()
 
     def create_rooms(self):
         for j in range(0, self.max_iters):
@@ -92,7 +96,27 @@ class Game:
             for x in range(roomB.x, roomA.x):
                 self.map[x][roomA.y] = 1
             for y in range(roomB.y, roomA.y):
-                self.map[roomA.x][y]
+                self.map[roomA.x][y] = 1
+    
+    def init_player(self):
+        rand.shuffle(self.rooms)
+
+        room = self.rooms[0]
+
+        x = rand.randrange(room.x, room.x + room.width)
+        y = rand.randrange(room.y, room.y + room.height)
+
+        self.player = Player(x, y)
+    
+    # currently not working, index out of range error lol :) deal with it hahahaha
+    def display_player(self):
+        for x in range(self.player.x - 5, self.player.x + 5):
+            for y in range(self.player.y - 5, self.player.y + 5):
+                if (self.map[x][y] == 0):
+                    print('x ', end='')
+                else:
+                    print('  ', end='')
+            print()
 
     
     
@@ -105,6 +129,11 @@ class Room:
 
     def __str__(self):
         return f"A room at ({self.x}, {self.y})"
+
+class Player:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
 
 
