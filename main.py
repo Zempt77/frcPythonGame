@@ -6,93 +6,96 @@ class Game:
     def __init__(self):
         print("HALLO EVERYONE")
 
-        self.min_room_size = 6
+        self.min_rooms = 2
+        self.max_rooms = 6
         self.max_room_size = 20
-        self.max_rooms = 10
-        self.min_rooms = 3
-        self.max_iters = 3
+        self.min_room_size = 3
 
         self.map_width = 50
         self.map_height = 50
 
+        self.max_iters = 3
+
+        self.map = [[0 for i in range(self.map_width)] for j in range(self.map_height)]
+
         self.rooms = []
 
-
-        self.init_map()
-        self.init_rooms()
+        self.create_rooms()
         self.connect_rooms()
 
-        print(type(self.map))
+        self.print_map()
 
-    def init_map(self):
-        for y in range(self.map_height):
-            for x in range(self.map_width):
-                self.map[x,y] = 0
-    
-    def init_rooms(self):
-        # gens random number for number of rooms in map
-        total_rooms = rand.randrange(self.min_rooms, self.max_rooms)
+    def create_rooms(self):
+        for j in range(0, self.max_iters):
+            if (len(self.rooms) >= self.max_rooms):
+                break
+            num_rooms = rand.randint(self.min_rooms, self.max_rooms)
 
+            for i in range(num_rooms):
+                height = rand.randint(self.min_room_size, self.max_room_size)
+                width = rand.randint(self.min_room_size, self.max_room_size)
 
-        for i in range(self.max_iters):
-            for j in range(total_rooms):
-                if len(self.rooms) >= self.max_rooms:
-                    break
-        
-        x = rand.randrange(0, self.map_width)
-        y = rand.randrange(0, self.map_height)
+                room = Room(rand.randint(0, self.map_width - width), rand.randint(0, self.map_height - height), width, height)
 
-        width = rand.randrange(self.min_room_size, self.max_room_size)
-        height = rand.randrange(self.min_room_size, self.max_room_size)
-
-        room = Room(x, y, width, height)
-
-        if self.check_for_overlap(room, self.rooms):
-            pass
-        else:
-            self.rooms.append(room)
-        
-        for room in self.rooms:
-            for y in range(room.y, room.y + room.height):
+                if self.check_overlap(room):
+                    pass
+                else:
+                    self.rooms.append(room)
+            
+            for room in self.rooms:
                 for x in range(room.x, room.x + room.width):
-                    self.map[x,y] = 1
+                    for y in range(room.y, room.y + room.height):
+                        self.map[y][x] = 1
+
+    def print_map(self):
+        for x in range(0, self.map_width):
+            for y in range(0, self.map_height):
+                if self.map[x][y] == 1:
+                    print(' ', end='')
+                    print(' ', end='')
+                else:
+                    print('x', end='')
+                    print(' ', end='')
+            print()
     
-    def check_for_overlap(self, room, rooms) -> bool:
-        for check_room in rooms:
-            room_max_x = room.x + room.width
+    def check_overlap(self, croom):
+        for room in self.rooms:
+            croom_min_x = croom.x
+            croom_max_x = croom.x + croom.width
+
+            croom_min_y = croom.y
+            croom_max_y = croom.y + croom.height
+
             room_min_x = room.x
+            room_max_x = room.x + room.width
 
             room_min_y = room.y
             room_max_y = room.y + room.height
 
-            check_min_x = check_room.x
-            check_max_x = check_room.x + check_room.width
-
-            check_min_y = check_room.y
-            check_max_y = check_room.y + check_room.height
-
-            if ((room_max_x >= check_min_x or room_min_x <= check_max_x) and (room_max_y >= check_min_y or room_min_y <= check_max_y)):
+            if ((croom_min_x <= room_max_x and croom_max_x >= room_min_x) and (croom_min_y <= room_max_y and croom_max_y >= room_min_y)):
                 return True
             else:
                 return False
-    
+        
     def connect_rooms(self):
         rand.shuffle(self.rooms)
-        for i in range(len(self.rooms)-1):
+
+        for i in range(len(self.rooms) - 1):
             roomA = self.rooms[i]
-            roomB = self.rooms[i+1]
-        for x in range(roomA.x,roomB.x):
-            self.map[x,roomA.y] = 1
-        for y in range(roomA.y, roomB.y):
-            self.map[roomA.x,y] = 1
-        for x in range(roomB.x,roomA.x):
-            self.map[x,roomA.y] = 1
-        for y in range(roomB.y, roomA.y):
-            self.map[roomA.x,y] = 1
+            roomB = self.rooms[i + 1]
+
+            for x in range(roomA.x, roomB.x):
+                self.map[x][roomA.y] = 1
+            for y in range(roomA.y, roomB.y):
+                self.map[roomA.x][y] = 1
+            
+            for x in range(roomB.x, roomA.x):
+                self.map[x][roomA.y] = 1
+            for y in range(roomB.y, roomA.y):
+                self.map[roomA.x][y]
+
     
     
-
-
 class Room:
     def __init__(self, x, y, width, height):
         self.x = x
@@ -106,4 +109,4 @@ class Room:
 
 
 if __name__ == "__main__":
-    root = Game
+    root = Game()
